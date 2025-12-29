@@ -1,50 +1,81 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# [PROJECT_NAME] Research Constitution
+
+## Research Context
+
+[RESEARCH_CONTEXT]
+<!-- What scientific questions does this project address? How does it fit
+     into the broader research program? Who are the intended users of
+     the outputs? -->
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Reproducibility
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Analysis should be fully reproducible from raw data to final outputs.
+Scripts run without manual intervention. Random seeds are fixed and
+documented. Environment dependencies are explicit (requirements.txt,
+environment.yml, or equivalent).
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Data Integrity
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Raw data is immutable - all transformations produce new files, never
+overwrite sources. Data lineage is traceable through the analysis chain.
+Missing or suspect values are flagged, not silently dropped or filled.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Provenance
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Every output links back to: the code that produced it, the input data,
+and key parameter choices. Figures and tables can be regenerated from
+tracked artifacts. If you can't trace how a number was made, it doesn't
+belong in the paper.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## Data Sources
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+[DATA_SOURCES]
+<!-- For each major data source:
+     - Name and brief description
+     - Access method (URL, API, local path)
+     - Spatial/temporal coverage
+     - Update frequency (if applicable)
+     - Known quality issues or limitations
+     - Contact or documentation link -->
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Technical Environment
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+[TECHNICAL_ENVIRONMENT]
+<!-- - Language and version (e.g., Python 3.11)
+     - Key packages and versions
+     - Compute environment (laptop, cluster, cloud)
+     - Data storage locations
+     - Version control practices -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+## Coordinate Systems & Units
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+[COORDINATE_SYSTEMS]
+<!-- - Spatial reference system(s) with EPSG codes
+     - Time zone and calendar conventions
+     - Standard units for key variables
+     - Missing data conventions (NaN, -9999, etc.) -->
+
+## Figure Standards
+
+[FIGURE_STANDARDS]
+<!-- - Color palette (prefer colorblind-safe)
+     - Standard dimensions for publication
+     - Required elements (scale bars, colorbars, uncertainty)
+     - File formats and resolution (e.g., PDF for vectors, 300dpi PNG) -->
+
+## Quality Checks
+
+[QUALITY_CHECKS]
+<!-- - Range and sanity checks for key variables
+     - Spatial/temporal consistency checks
+     - Comparison against reference or validation data
+     - How suspect data is flagged and handled -->
+
+## Project Notes
+
+[PROJECT_NOTES]
+<!-- - Collaborator agreements or data sharing restrictions
+     - Publication timelines or embargo periods
+     - Any other project-specific constraints -->
