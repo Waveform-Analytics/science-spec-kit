@@ -1,115 +1,125 @@
-# Feature Specification: [FEATURE NAME]
+# Analysis Specification: [ANALYSIS NAME]
 
-**Feature Branch**: `[###-feature-name]`  
-**Created**: [DATE]  
-**Status**: Draft  
+**Directory**: `analyses/[short-name]`
+**Created**: [DATE]
+**Status**: Draft
 **Input**: User description: "$ARGUMENTS"
 
-## User Scenarios & Testing *(mandatory)*
+## Research Question(s)
 
 <!--
-  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
-  Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
-  you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
-  Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
-  Think of each story as a standalone slice of functionality that can be:
-  - Developed independently
-  - Tested independently
-  - Deployed independently
-  - Demonstrated to users independently
+  What are you trying to learn or test? Frame as specific, answerable questions.
+  If hypothesis-driven, state the hypothesis and what would confirm/refute it.
 -->
 
-### User Story 1 - [Brief Title] (Priority: P1)
+1. [Primary research question]
+2. [Secondary question, if applicable]
 
-[Describe this user journey in plain language]
+**Hypothesis** (if applicable): [State expected outcome and reasoning]
 
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-### User Story 2 - [Brief Title] (Priority: P2)
-
-[Describe this user journey in plain language]
-
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-### User Story 3 - [Brief Title] (Priority: P3)
-
-[Describe this user journey in plain language]
-
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-[Add more user stories as needed, each with an assigned priority]
-
-### Edge Cases
+## Data Description
 
 <!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
+  For each data source, describe:
+  - What it is and where it comes from
+  - Spatial/temporal coverage
+  - Known quality issues or limitations
+  - Access method (file path, URL, API)
+
+  This section should let someone else obtain the same data.
 -->
 
-- What happens when [boundary condition]?
-- How does system handle [error scenario]?
+### Primary Data
 
-## Requirements *(mandatory)*
+- **Source**: [Name and origin]
+- **Coverage**: [Spatial/temporal extent]
+- **Format**: [File type, structure]
+- **Access**: [How to get it]
+- **Known issues**: [Quality concerns, gaps, caveats]
+
+### Secondary Data (if applicable)
+
+- **Source**: [Name and origin]
+- **Purpose**: [Why this data is needed]
+- **Access**: [How to get it]
+
+## Methods Overview
 
 <!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right functional requirements.
+  High-level description of the analysis approach. Focus on WHAT you'll do
+  and WHY, not the code. Someone should understand the scientific logic
+  without seeing implementation details.
 -->
 
-### Functional Requirements
+1. **Data preparation**: [Cleaning, filtering, transformations needed]
+2. **Analysis approach**: [Statistical methods, models, comparisons]
+3. **Validation**: [How you'll check results make sense]
 
-- **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
-- **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
-- **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
-- **FR-005**: System MUST [behavior, e.g., "log all security events"]
+**Justification**: [Why this approach suits the research question]
 
-*Example of marking unclear requirements:*
-
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
-
-### Key Entities *(include if feature involves data)*
-
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
-
-## Success Criteria *(mandatory)*
+## Expected Outputs
 
 <!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
+  What will this analysis produce? Be specific enough that you'll know
+  when you're done.
 -->
 
-### Measurable Outcomes
+### Figures
 
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+- **Figure 1**: [Description - what it shows, why it matters]
+- **Figure 2**: [Description]
+
+### Tables/Statistics
+
+- **Table 1**: [Description - what summary statistics or comparisons]
+
+### Key Metrics
+
+- [Specific numbers or comparisons the analysis should produce]
+
+## Validation Approach
+
+<!--
+  How will you know the results are correct? What sanity checks apply?
+  Reference any validation data or known benchmarks.
+-->
+
+- [Sanity check 1 - e.g., "Values should fall within X-Y range"]
+- [Sanity check 2 - e.g., "Results should be consistent with [prior work]"]
+- [Comparison to validation data, if available]
+
+## Completion Criteria
+
+<!--
+  What defines "done"? Be specific enough to know when to stop.
+-->
+
+- [ ] Research question(s) answered with evidence
+- [ ] All expected outputs generated
+- [ ] Validation checks pass
+- [ ] Results reproducible from raw data
+- [ ] [Project-specific criterion]
+
+## Assumptions & Limitations
+
+<!--
+  What are you assuming? What won't this analysis address?
+  Being explicit here prevents scope creep and sets expectations.
+-->
+
+**Assumptions**:
+- [Assumption about data quality, coverage, or applicability]
+- [Assumption about methods or models]
+
+**Limitations**:
+- [What this analysis won't tell you]
+- [Known constraints or caveats]
+
+## Notes
+
+<!--
+  Anything else relevant - related work, collaborator input,
+  decisions made during scoping.
+-->
+
+[Additional context]
