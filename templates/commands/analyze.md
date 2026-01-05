@@ -55,8 +55,8 @@ Abort with an error message if any required file is missing.
 **From tasks.md:**
 
 - Task IDs and descriptions
-- Phase grouping (ingestion, exploration, analysis, outputs, documentation)
-- Parallel markers [P]
+- Phase grouping (Setup, Data Acquisition, Preprocessing, Analysis, Visualization, Documentation)
+- QC checkpoints between phases
 - Referenced data files or scripts
 
 **From constitution:**
