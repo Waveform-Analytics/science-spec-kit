@@ -1,6 +1,6 @@
 # Analysis Specification: [ANALYSIS NAME]
 
-**Directory**: `analyses/[short-name]`
+**Directory**: `specs/[NNN-short-name]`
 **Created**: [DATE]
 **Status**: Draft
 **Input**: User description: "$ARGUMENTS"

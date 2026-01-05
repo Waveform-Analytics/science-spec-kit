@@ -34,32 +34,49 @@ Extract from the user's description:
 
 If the description is empty or too vague to identify a research question, ask for clarification.
 
-### 2. Set Up Analysis Directory
+### 2. Generate Short Name
 
-Create a directory for this analysis:
-
-```bash
-mkdir -p analyses/[short-name]
-```
-
-Where `[short-name]` is a 2-4 word slug derived from the research goal:
+Create a 2-4 word slug from the research goal:
 - "I want to compare glacier velocities between seasons" → `glacier-velocity-seasonal`
 - "Analyze the correlation between temperature and runoff" → `temp-runoff-correlation`
 - "Generate figures for the 2024 field campaign" → `2024-field-figures`
 
-If in a git repository, create and checkout a branch:
+### 3. Determine Next Spec Number
+
+Find the highest existing spec number across all sources:
+
+1. **Fetch remote branches** (if in a git repo):
+   ```bash
+   git fetch --all --prune
+   ```
+
+2. **Scan all sources for numbered specs**:
+   - Remote branches: `git ls-remote --heads origin | grep -E 'refs/heads/[0-9]+-'`
+   - Local branches: `git branch | grep -E '^[* ]*[0-9]+-'`
+   - Specs directories: `ls -d specs/[0-9][0-9][0-9]-* 2>/dev/null`
+
+3. **Extract the highest number** from all sources, increment by 1. If none exist, start at 001.
+
+Format as 3-digit zero-padded: `001`, `002`, ... `042`, etc.
+
+### 4. Create Spec Directory and Branch
+
+Create the directory and branch with synchronized names:
 
 ```bash
-git checkout -b analysis/[short-name]
+mkdir -p specs/[NNN]-[short-name]
+git checkout -b [NNN]-[short-name]
 ```
+
+Example: If highest existing is `003-runoff-analysis`, new spec becomes `004-glacier-velocity` (both directory and branch).
 
 If branch already exists, ask user whether to use existing or choose a different name.
 
-### 3. Load the Specification Template
+### 5. Load the Specification Template
 
 Read `templates/spec-template.md` to understand required sections.
 
-### 4. Fill the Specification
+### 6. Fill the Specification
 
 Work through each section:
 
@@ -97,7 +114,7 @@ Work through each section:
 - Document scope boundaries
 - Note what the analysis won't address
 
-### 5. Handle Unknowns
+### 7. Handle Unknowns
 
 For unclear aspects, apply this hierarchy:
 
@@ -128,11 +145,11 @@ If clarifications needed, present as:
 | B | [Option] | [What this means for the analysis] |
 ```
 
-### 6. Write the Specification
+### 8. Write the Specification
 
-Write the completed spec to `analyses/[short-name]/spec.md`.
+Write the completed spec to `specs/[NNN]-[short-name]/spec.md`.
 
-### 7. Validate Against Constitution
+### 9. Validate Against Constitution
 
 If `/memory/constitution.md` exists, check alignment:
 - Data sources referenced in spec match those defined in constitution?
@@ -141,10 +158,10 @@ If `/memory/constitution.md` exists, check alignment:
 
 Flag any mismatches for user review.
 
-### 8. Report Completion
+### 10. Report Completion
 
 Summarize:
-- Analysis directory and branch created
+- Spec number, directory, and branch created (e.g., `004-glacier-velocity`)
 - Spec file location
 - Any sections marked TODO or needing clarification
 - Suggested next step: `/speckit.plan` to create the analysis plan

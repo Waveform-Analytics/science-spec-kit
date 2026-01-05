@@ -1,19 +1,16 @@
 ---
-description: Execute the implementation planning workflow using the plan template to generate design artifacts.
-handoffs: 
+description: Create an analysis plan from a specification, defining the data pipeline, scripts, and workflow.
+handoffs:
   - label: Create Tasks
     agent: speckit.tasks
     prompt: Break the plan into tasks
     send: true
   - label: Create Checklist
     agent: speckit.checklist
-    prompt: Create a checklist for the following domain...
+    prompt: Create a checklist for this analysis
 scripts:
   sh: scripts/bash/setup-plan.sh --json
   ps: scripts/powershell/setup-plan.ps1 -Json
-agent_scripts:
-  sh: scripts/bash/update-agent-context.sh __AGENT__
-  ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
 ---
 
 ## User Input
@@ -22,74 +19,143 @@ agent_scripts:
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+Consider the user input before proceeding (if not empty). User input typically specifies preferred tools, compute environment, or methodological choices.
 
-## Outline
+## Goal
 
-1. **Setup**: Run `{SCRIPT}` from repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, SPECS_DIR, BRANCH. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+Transform an analysis specification into a concrete plan: what scripts to write, how data flows through them, and what order to execute them. The plan bridges "what we want to learn" (spec) and "what to actually do" (tasks).
 
-2. **Load context**: Read FEATURE_SPEC and `/memory/constitution.md`. Load IMPL_PLAN template (already copied).
+## Execution Steps
 
-3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
-   - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
-   - Fill Constitution Check section from constitution
-   - Evaluate gates (ERROR if violations unjustified)
-   - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
-   - Phase 1: Generate data-model.md, contracts/, quickstart.md
-   - Phase 1: Update agent context by running the agent script
-   - Re-evaluate Constitution Check post-design
+### 1. Setup
 
-4. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generated artifacts.
+Run `{SCRIPT}` from repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, SPECS_DIR, BRANCH.
 
-## Phases
+### 2. Load Context
 
-### Phase 0: Outline & Research
+Read:
+- FEATURE_SPEC (`spec.md`) - the analysis specification
+- `/memory/constitution.md` - project standards and data sources
+- User input - any preferences for tools, environment, methods
 
-1. **Extract unknowns from Technical Context** above:
-   - For each NEEDS CLARIFICATION → research task
-   - For each dependency → best practices task
-   - For each integration → patterns task
+### 3. Fill Analysis Environment
 
-2. **Generate and dispatch research agents**:
+Based on the spec and user input, determine:
+- **Language/version**: Default to Python 3.11+ unless specified otherwise
+- **Key packages**: Infer from data types and methods in spec (e.g., NetCDF → xarray, statistics → scipy)
+- **Environment file**: Note whether one exists or needs creation
 
-   ```text
-   For each unknown in Technical Context:
-     Task: "Research {unknown} for {feature context}"
-   For each technology choice:
-     Task: "Find best practices for {tech} in {domain}"
+If user didn't specify tools, make reasonable defaults and note them as assumptions.
+
+### 4. Assess Compute Environment
+
+Based on data scale from the spec:
+- **Small data (<1GB)**: Laptop-scale, no special handling needed
+- **Medium data (1-50GB)**: May need chunked processing, note in plan
+- **Large data (>50GB)**: Likely needs cluster/cloud, flag for user input
+
+If the user specified timeline pressure, factor that into recommendations (e.g., "Given the deadline, parallel processing on the cluster would help").
+
+### 5. Run Constitution Check
+
+Verify the emerging plan aligns with constitution:
+- Data sources referenced match those defined
+- Coordinate systems will be handled correctly
+- Figure outputs will meet stated standards
+- Quality checks are planned
+
+Flag any mismatches. These aren't blockers but need acknowledgment.
+
+### 6. Design Project Structure
+
+Propose a directory structure based on:
+- Number and type of scripts/notebooks needed
+- Data volume and stages
+- Output types (figures, tables, intermediate results)
+
+Use the template structure as a starting point, adapt to the specific analysis.
+
+### 7. Design Data Pipeline
+
+Work through the data flow:
+1. **Acquisition**: How does raw data get into the project?
+2. **Preprocessing**: What cleaning/transformation is needed?
+3. **Analysis**: What calculations produce results?
+4. **Visualization**: What scripts generate outputs?
+
+For each stage, specify:
+- Input files/locations
+- Processing steps (conceptual, not code)
+- Output files/locations
+- Script name
+
+Ensure raw data is never modified in place (constitution principle).
+
+### 8. Create Script/Notebook Plan
+
+List each code artifact to be created:
+- Purpose (one sentence)
+- Inputs and outputs
+- Key operations
+
+This becomes the basis for task generation.
+
+### 9. Map Dependencies
+
+Identify:
+- Sequential dependencies (preprocessing must complete before analysis)
+- Parallel opportunities (independent figures can be generated simultaneously)
+
+Draw or describe the dependency graph.
+
+### 10. Capture Open Questions
+
+List unknowns that need resolution:
+- Method choices not yet decided
+- Package selection questions
+- Data access issues
+- Computational feasibility concerns
+
+These become Phase 0 research tasks.
+
+### 11. Phase 0: Research (if needed)
+
+If open questions exist:
+
+1. For each question, research options:
+   - What are the alternatives?
+   - What are the tradeoffs?
+   - What's the recommendation?
+
+2. Document decisions in `research.md`:
+   ```markdown
+   ## [Topic]
+
+   **Decision**: [What was chosen]
+   **Rationale**: [Why]
+   **Alternatives considered**: [What else was evaluated]
    ```
 
-3. **Consolidate findings** in `research.md` using format:
-   - Decision: [what was chosen]
-   - Rationale: [why chosen]
-   - Alternatives considered: [what else evaluated]
+3. Update plan.md with resolved decisions
 
-**Output**: research.md with all NEEDS CLARIFICATION resolved
+### 12. Write Plan
 
-### Phase 1: Design & Contracts
+Write the completed plan to `specs/[NNN-short-name]/plan.md`.
 
-**Prerequisites:** `research.md` complete
+If research was conducted, also write `specs/[NNN-short-name]/research.md`.
 
-1. **Extract entities from feature spec** → `data-model.md`:
-   - Entity name, fields, relationships
-   - Validation rules from requirements
-   - State transitions if applicable
+### 13. Report Completion
 
-2. **Generate API contracts** from functional requirements:
-   - For each user action → endpoint
-   - Use standard REST/GraphQL patterns
-   - Output OpenAPI/GraphQL schema to `/contracts/`
+Summarize:
+- Plan file location
+- Key decisions made (environment, structure, pipeline stages)
+- Any open questions remaining
+- Suggested next step: `/speckit.tasks` to create the task breakdown
 
-3. **Agent context update**:
-   - Run `{AGENT_SCRIPT}`
-   - These scripts detect which AI agent is in use
-   - Update the appropriate agent-specific context file
-   - Add only new technology from current plan
-   - Preserve manual additions between markers
+## Operating Principles
 
-**Output**: data-model.md, /contracts/*, quickstart.md, agent-specific file
-
-## Key rules
-
-- Use absolute paths
-- ERROR on gate failures or unresolved clarifications
+- **Reproducibility focus**: Every step should be traceable and re-runnable
+- **Raw data immutability**: Plan must never modify source data
+- **Practical defaults**: Make reasonable choices rather than asking about everything
+- **Constitution alignment**: Check against project standards
+- **Right-sized planning**: Simple analysis gets simple plan; complex analysis gets detailed plan

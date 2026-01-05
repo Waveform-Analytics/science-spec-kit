@@ -1,104 +1,159 @@
-# Implementation Plan: [FEATURE]
+# Analysis Plan: [ANALYSIS NAME]
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**Spec**: `specs/[NNN-short-name]/spec.md`
+**Created**: [DATE]
+**Status**: Draft
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+[One paragraph: What question are we answering, what's the approach, what are the key outputs?]
 
-## Technical Context
+## Analysis Environment
+
+**Language/Version**: [e.g., Python 3.11]
+**Key Packages**: [e.g., xarray, pandas, matplotlib, scipy]
+**Environment File**: [e.g., environment.yml, requirements.txt, or "to be created"]
+
+## Compute Environment
 
 <!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
+  Optional but helpful for larger analyses. Skip if small-scale exploratory work.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Where will this run?**
+- [ ] Laptop/desktop
+- [ ] Shared server
+- [ ] HPC cluster
+- [ ] Cloud
+
+**Data scale**: [e.g., "~50GB of NetCDF files" or "small, <1GB total"]
+
+**Timeline pressure**: [e.g., "results needed for AGU abstract Dec 1" or "exploratory, no deadline"]
+
+**Known bottlenecks** (if any): [e.g., "similar analysis took 3 days last time" or "N/A"]
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+<!--
+  Verify alignment with project constitution. Check the boxes that apply.
+-->
 
-[Gates determined based on constitution file]
+- [ ] Data sources match those defined in constitution
+- [ ] Coordinate systems/units are consistent
+- [ ] Figure standards will be followed
+- [ ] Quality checks are incorporated
+
+**Issues to resolve**: [List any conflicts or gaps]
 
 ## Project Structure
 
-### Documentation (this feature)
-
-```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
-```
-
-### Source Code (repository root)
 <!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
+  This is a suggested starting point. Adapt to your project:
+  - Split scripts if a stage is complex (e.g., 02a_clean.py, 02b_reproject.py)
+  - Combine stages if simple
+  - Use notebooks instead of scripts if preferred
+  The key is maintaining clear stages and data flow, not matching this exactly.
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+specs/[NNN-short-name]/
+├── spec.md              # Analysis specification
+├── plan.md              # This file
+├── research.md          # Method decisions and rationale
+└── tasks.md             # Task breakdown (created by /speckit.tasks)
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+scripts/                 # Or notebooks/, depending on preference
+├── 01_data_download.py
+├── 02_preprocessing.py
+├── 03_analysis.py
+└── 04_figures.py
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+data/
+├── raw/                 # Immutable raw data
+├── processed/           # Cleaned/transformed data
+└── intermediate/        # Working files (can be regenerated)
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+outputs/
+├── figures/
+├── tables/
+└── results/
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure notes**: [Adjust the above to match your project. Add/remove scripts as needed while keeping the overall stage organization.]
 
-## Complexity Tracking
+## Data Pipeline
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+<!--
+  Describe how data flows from raw inputs to final outputs.
+  Each stage should be traceable and reproducible.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+  Adjust the number of stages and scripts to fit your project.
+  The stages below are a starting point - split or combine as needed.
+-->
+
+### Stage 1: Data Acquisition
+- **Input**: [Source - URL, API, local path]
+- **Output**: `data/raw/[files]`
+- **Script**: `scripts/01_data_download.py`
+
+### Stage 2: Preprocessing
+- **Input**: `data/raw/[files]`
+- **Processing**: [What transformations - cleaning, filtering, reprojection, etc.]
+- **Output**: `data/processed/[files]`
+- **Script**: `scripts/02_preprocessing.py`
+
+### Stage 3: Analysis
+- **Input**: `data/processed/[files]`
+- **Processing**: [Statistical methods, models, calculations]
+- **Output**: `data/intermediate/[results]` or `outputs/results/[files]`
+- **Script**: `scripts/03_analysis.py`
+
+### Stage 4: Visualization
+- **Input**: Analysis outputs
+- **Output**: `outputs/figures/[files]`
+- **Script**: `scripts/04_figures.py`
+
+## Script/Notebook Plan
+
+<!--
+  List the code artifacts you'll create. Be specific enough to guide implementation.
+-->
+
+| Script | Purpose | Inputs | Outputs |
+|--------|---------|--------|---------|
+| `01_data_download.py` | Fetch raw data | URLs/credentials | `data/raw/*` |
+| `02_preprocessing.py` | Clean and transform | `data/raw/*` | `data/processed/*` |
+| `03_analysis.py` | Core calculations | `data/processed/*` | `outputs/results/*` |
+| `04_figures.py` | Generate figures | Analysis outputs | `outputs/figures/*` |
+
+## Dependencies
+
+<!--
+  Which steps must complete before others? This guides task ordering.
+-->
+
+```text
+01_data_download
+       ↓
+02_preprocessing
+       ↓
+03_analysis
+       ↓
+04_figures
+```
+
+**Parallel opportunities**: [e.g., "Figure 1 and Figure 2 can be generated in parallel once analysis completes"]
+
+## Open Questions
+
+<!--
+  Unknowns that need resolution before or during implementation.
+  These become research tasks in Phase 0.
+-->
+
+- [ ] [Question about method choice, package selection, data access, etc.]
+- [ ] [Another question]
+
+## Notes
+
+[Any other context - related prior work, collaborator inputs, etc.]
