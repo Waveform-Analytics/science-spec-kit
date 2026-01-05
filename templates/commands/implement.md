@@ -1,5 +1,5 @@
 ---
-description: Execute the implementation plan by processing and executing all tasks defined in tasks.md
+description: Implement analysis scripts iteratively - write, review code, run, debug / review results, repeat as needed.
 scripts:
   sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
   ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
@@ -11,128 +11,149 @@ scripts:
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+Consider the user input before proceeding. User may specify which task/phase to work on, or request a specific mode (e.g., "debug T015", "run phase 3").
 
-## Outline
+## Goal
 
-1. Run `{SCRIPT}` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+Implement analysis scripts through an iterative cycle: write script → user reviews → incorporate feedback → run → debug/iterate based on results. Capture key decisions without slowing the workflow.
 
-2. **Check checklists status** (if FEATURE_DIR/checklists/ exists):
-   - Scan all checklist files in the checklists/ directory
-   - For each checklist, count:
-     - Total items: All lines matching `- [ ]` or `- [X]` or `- [x]`
-     - Completed items: Lines matching `- [X]` or `- [x]`
-     - Incomplete items: Lines matching `- [ ]`
-   - Create a status table:
+## Execution Steps
 
-     ```text
-     | Checklist | Total | Completed | Incomplete | Status |
-     |-----------|-------|-----------|------------|--------|
-     | ux.md     | 12    | 12        | 0          | ✓ PASS |
-     | test.md   | 8     | 5         | 3          | ✗ FAIL |
-     | security.md | 6   | 6         | 0          | ✓ PASS |
-     ```
+### 1. Setup
 
-   - Calculate overall status:
-     - **PASS**: All checklists have 0 incomplete items
-     - **FAIL**: One or more checklists have incomplete items
+Run `{SCRIPT}` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list.
 
-   - **If any checklist is incomplete**:
-     - Display the table with incomplete item counts
-     - **STOP** and ask: "Some checklists are incomplete. Do you want to proceed with implementation anyway? (yes/no)"
-     - Wait for user response before continuing
-     - If user says "no" or "wait" or "stop", halt execution
-     - If user says "yes" or "proceed" or "continue", proceed to step 3
+### 2. Load Context
 
-   - **If all checklists are complete**:
-     - Display the table showing all checklists passed
-     - Automatically proceed to step 3
+Read from FEATURE_DIR:
+- **Required**: `tasks.md` (task list with current status)
+- **Required**: `plan.md` (pipeline structure, script purposes, environment)
+- **Required**: `spec.md` (expected outputs, validation criteria)
+- **Optional**: `research.md` (method decisions made during planning)
+- **Context**: `/memory/constitution.md` (project standards)
 
-3. Load and analyze the implementation context:
-   - **REQUIRED**: Read tasks.md for the complete task list and execution plan
-   - **REQUIRED**: Read plan.md for tech stack, architecture, and file structure
-   - **IF EXISTS**: Read data-model.md for entities and relationships
-   - **IF EXISTS**: Read contracts/ for API specifications and test requirements
-   - **IF EXISTS**: Read research.md for technical decisions and constraints
-   - **IF EXISTS**: Read quickstart.md for integration scenarios
+### 3. Determine Current Task
 
-4. **Project Setup Verification**:
-   - **REQUIRED**: Create/verify ignore files based on actual project setup:
+If user specified a task (e.g., "T015" or "phase 4"):
+- Work on that task
 
-   **Detection & Creation Logic**:
-   - Check if the following command succeeds to determine if the repository is a git repo (create/verify .gitignore if so):
+Otherwise:
+- Find the first incomplete task (`- [ ]`) in tasks.md
+- Confirm with user: "Next task is T### - [description]. Proceed?"
 
-     ```sh
-     git rev-parse --git-dir 2>/dev/null
-     ```
+### 4. Write Script
 
-   - Check if Dockerfile* exists or Docker in plan.md → create/verify .dockerignore
-   - Check if .eslintrc* exists → create/verify .eslintignore
-   - Check if eslint.config.* exists → ensure the config's `ignores` entries cover required patterns
-   - Check if .prettierrc* exists → create/verify .prettierignore
-   - Check if .npmrc or package.json exists → create/verify .npmignore (if publishing)
-   - Check if terraform files (*.tf) exist → create/verify .terraformignore
-   - Check if .helmignore needed (helm charts present) → create/verify .helmignore
+For the current task:
 
-   **If ignore file already exists**: Verify it contains essential patterns, append missing critical patterns only
-   **If ignore file missing**: Create with full pattern set for detected technology
+1. **Draft the script** based on:
+   - Task description from tasks.md
+   - Pipeline stage context from plan.md
+   - Input/output expectations
+   - Relevant decisions from research.md
 
-   **Common Patterns by Technology** (from plan.md tech stack):
-   - **Node.js/JavaScript/TypeScript**: `node_modules/`, `dist/`, `build/`, `*.log`, `.env*`
-   - **Python**: `__pycache__/`, `*.pyc`, `.venv/`, `venv/`, `dist/`, `*.egg-info/`
-   - **Java**: `target/`, `*.class`, `*.jar`, `.gradle/`, `build/`
-   - **C#/.NET**: `bin/`, `obj/`, `*.user`, `*.suo`, `packages/`
-   - **Go**: `*.exe`, `*.test`, `vendor/`, `*.out`
-   - **Ruby**: `.bundle/`, `log/`, `tmp/`, `*.gem`, `vendor/bundle/`
-   - **PHP**: `vendor/`, `*.log`, `*.cache`, `*.env`
-   - **Rust**: `target/`, `debug/`, `release/`, `*.rs.bk`, `*.rlib`, `*.prof*`, `.idea/`, `*.log`, `.env*`
-   - **Kotlin**: `build/`, `out/`, `.gradle/`, `.idea/`, `*.class`, `*.jar`, `*.iml`, `*.log`, `.env*`
-   - **C++**: `build/`, `bin/`, `obj/`, `out/`, `*.o`, `*.so`, `*.a`, `*.exe`, `*.dll`, `.idea/`, `*.log`, `.env*`
-   - **C**: `build/`, `bin/`, `obj/`, `out/`, `*.o`, `*.a`, `*.so`, `*.exe`, `Makefile`, `config.log`, `.idea/`, `*.log`, `.env*`
-   - **Swift**: `.build/`, `DerivedData/`, `*.swiftpm/`, `Packages/`
-   - **R**: `.Rproj.user/`, `.Rhistory`, `.RData`, `.Ruserdata`, `*.Rproj`, `packrat/`, `renv/`
-   - **Universal**: `.DS_Store`, `Thumbs.db`, `*.tmp`, `*.swp`, `.vscode/`, `.idea/`
+2. **Include inline markers for review**:
+   ```python
+   # [Q: Should we use linear or cubic interpolation here?]
+   # [TODO: Add error handling for missing files]
+   # [C: Using xarray for NetCDF - see research.md for rationale]
+   ```
 
-   **Tool-Specific Patterns**:
-   - **Docker**: `node_modules/`, `.git/`, `Dockerfile*`, `.dockerignore`, `*.log*`, `.env*`, `coverage/`
-   - **ESLint**: `node_modules/`, `dist/`, `build/`, `coverage/`, `*.min.js`
-   - **Prettier**: `node_modules/`, `dist/`, `build/`, `coverage/`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`
-   - **Terraform**: `.terraform/`, `*.tfstate*`, `*.tfvars`, `.terraform.lock.hcl`
-   - **Kubernetes/k8s**: `*.secret.yaml`, `secrets/`, `.kube/`, `kubeconfig*`, `*.key`, `*.crt`
+3. **Write the script** to the path specified in tasks.md
 
-5. Parse tasks.md structure and extract:
-   - **Task phases**: Setup, Tests, Core, Integration, Polish
-   - **Task dependencies**: Sequential vs parallel execution rules
-   - **Task details**: ID, description, file paths, parallel markers [P]
-   - **Execution flow**: Order and dependency requirements
+4. **Prompt user to review**:
+   > Script written to `scripts/03_analysis.py`. Please review and add inline comments:
+   > - `[Q: ...]` for questions
+   > - `[C: ...]` for feedback/changes
+   > - `[TODO: ...]` for things to add
+   >
+   > Say "ready" when done, or "run" to test as-is.
 
-6. Execute implementation following the task plan:
-   - **Phase-by-phase execution**: Complete each phase before moving to the next
-   - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together  
-   - **Follow TDD approach**: Execute test tasks before their corresponding implementation tasks
-   - **File-based coordination**: Tasks affecting the same files must run sequentially
-   - **Validation checkpoints**: Verify each phase completion before proceeding
+### 5. Process Feedback
 
-7. Implementation execution rules:
-   - **Setup first**: Initialize project structure, dependencies, configuration
-   - **Tests before code**: If you need to write tests for contracts, entities, and integration scenarios
-   - **Core development**: Implement models, services, CLI commands, endpoints
-   - **Integration work**: Database connections, middleware, logging, external services
-   - **Polish and validation**: Unit tests, performance optimization, documentation
+When user says "ready" or provides feedback:
 
-8. Progress tracking and error handling:
-   - Report progress after each completed task
-   - Halt execution if any non-parallel task fails
-   - For parallel tasks [P], continue with successful tasks, report failed ones
-   - Provide clear error messages with context for debugging
-   - Suggest next steps if implementation cannot proceed
-   - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
+1. **Scan the script** for `[Q: ...]`, `[C: ...]`, `[TODO: ...]` markers
+2. **Address each marker**:
+   - Questions → answer or ask for clarification
+   - Comments → incorporate the feedback
+   - TODOs → implement or note for later
+3. **Update the script** with changes
+4. **Remove resolved markers**, keep unresolved ones visible
+5. **Show diff** of changes made
+6. **Repeat** until user approves or says "run"
 
-9. Completion validation:
-   - Verify all required tasks are completed
-   - Check that implemented features match the original specification
-   - Validate that tests pass and coverage meets requirements
-   - Confirm the implementation follows the technical plan
-   - Report final status with summary of completed work
+### 6. Run Script
 
-Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/speckit.tasks` first to regenerate the task list.
+When user says "run" or approves the script:
+
+1. **Check environment**: Verify dependencies are available
+2. **Run the script**:
+   ```bash
+   uv run scripts/03_analysis.py
+   ```
+3. **Capture output**: stdout, stderr, any generated files
+4. **Report results**:
+   - Success: what outputs were generated
+   - Errors: full traceback with context
+
+### 7. Debug/Iterate
+
+If the script fails or produces unexpected results:
+
+1. **Analyze the error** or unexpected output
+2. **Propose a fix** with explanation
+3. **Update the script** (with user approval)
+4. **Re-run** and repeat until successful
+
+If results look wrong but script ran:
+- Compare against validation criteria from spec.md
+- Check against expected ranges from constitution.md
+- Propose diagnostic steps
+
+### 8. Complete Task
+
+When the task is working:
+
+1. **Mark task complete** in tasks.md: `- [ ]` → `- [x]`
+2. **Document decisions** (lightweight):
+   - If a significant method choice was made, add a brief note to `research.md`
+   - Format: `## [Topic] - [Date]: [One-line decision and why]`
+3. **Commit** (if user wants): suggest a commit message
+4. **Move to next task** or pause for user direction
+
+### 9. QC Tasks
+
+For tasks marked as QC (e.g., "QC: Verify processed data ranges"):
+
+1. **Propose specific checks** based on spec.md and constitution.md
+2. **Run checks** and report results
+3. **If checks fail**: stop and discuss with user before proceeding
+4. **If checks pass**: mark complete and continue
+
+## Modes
+
+The user can request specific modes:
+
+- **"implement T###"**: Work on a specific task
+- **"run T###"** or **"run phase N"**: Execute existing scripts without modification
+- **"debug T###"**: Focus on fixing a failing script
+- **"status"**: Show current progress through tasks.md
+- **"skip T###"**: Mark a task as skipped (with reason) and move on
+
+## Operating Principles
+
+- **Iterative over waterfall**: Expect multiple write-run-debug cycles. This is normal.
+- **User in the loop**: Don't proceed past review without user input. Use inline markers to make review efficient.
+- **Lightweight documentation**: Capture decisions in research.md, but one line is often enough. Don't let docs slow the science.
+- **Fail fast**: Run scripts early, even if incomplete. Real errors are more useful than theoretical planning.
+- **Sequential by default**: Complete each task before moving to the next. The pipeline has dependencies.
+- **QC gates matter**: Don't skip QC tasks. Bad data propagates.
+
+## Progress Tracking
+
+After each session, tasks.md should reflect:
+- `- [x]` for completed tasks
+- `- [ ]` for remaining tasks
+- `- [-]` for skipped tasks (with inline note explaining why)
+
+research.md should capture any non-obvious decisions made during implementation.
