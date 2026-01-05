@@ -1,13 +1,13 @@
 ---
-description: Generate an actionable, dependency-ordered tasks.md for the feature based on available design artifacts.
-handoffs: 
+description: Generate an actionable, dependency-ordered tasks.md for the analysis based on the spec and plan.
+handoffs:
   - label: Analyze For Consistency
     agent: speckit.analyze
     prompt: Run a project analysis for consistency
     send: true
-  - label: Implement Project
+  - label: Begin Analysis
     agent: speckit.implement
-    prompt: Start the implementation in phases
+    prompt: Start the analysis implementation
     send: true
 scripts:
   sh: scripts/bash/check-prerequisites.sh --json
@@ -20,121 +20,126 @@ scripts:
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+Consider the user input before proceeding (if not empty). User input may specify prioritization, scope limits, or computational constraints.
 
-## Outline
+## Goal
 
-1. **Setup**: Run `{SCRIPT}` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+Transform the analysis plan into a concrete task list: what scripts to write, in what order, with clear inputs/outputs for each. Tasks should be specific enough that each can be completed without additional context.
 
-2. **Load design documents**: Read from FEATURE_DIR:
-   - **Required**: plan.md (tech stack, libraries, structure), spec.md (user stories with priorities)
-   - **Optional**: data-model.md (entities), contracts/ (API endpoints), research.md (decisions), quickstart.md (test scenarios)
-   - Note: Not all projects have all documents. Generate tasks based on what's available.
+## Execution Steps
 
-3. **Execute task generation workflow**:
-   - Load plan.md and extract tech stack, libraries, project structure
-   - Load spec.md and extract user stories with their priorities (P1, P2, P3, etc.)
-   - If data-model.md exists: Extract entities and map to user stories
-   - If contracts/ exists: Map endpoints to user stories
-   - If research.md exists: Extract decisions for setup tasks
-   - Generate tasks organized by user story (see Task Generation Rules below)
-   - Generate dependency graph showing user story completion order
-   - Create parallel execution examples per user story
-   - Validate task completeness (each user story has all needed tasks, independently testable)
+### 1. Setup
 
-4. **Generate tasks.md**: Use `templates/tasks-template.md` as structure, fill with:
-   - Correct feature name from plan.md
-   - Phase 1: Setup tasks (project initialization)
-   - Phase 2: Foundational tasks (blocking prerequisites for all user stories)
-   - Phase 3+: One phase per user story (in priority order from spec.md)
-   - Each phase includes: story goal, independent test criteria, tests (if requested), implementation tasks
-   - Final Phase: Polish & cross-cutting concerns
-   - All tasks must follow the strict checklist format (see Task Generation Rules below)
-   - Clear file paths for each task
-   - Dependencies section showing story completion order
-   - Parallel execution examples per story
-   - Implementation strategy section (MVP first, incremental delivery)
+Run `{SCRIPT}` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list.
 
-5. **Report**: Output path to generated tasks.md and summary:
-   - Total task count
-   - Task count per user story
-   - Parallel opportunities identified
-   - Independent test criteria for each story
-   - Suggested MVP scope (typically just User Story 1)
-   - Format validation: Confirm ALL tasks follow the checklist format (checkbox, ID, labels, file paths)
+### 2. Load Design Documents
 
-Context for task generation: {ARGS}
+Read from FEATURE_DIR:
+- **Required**: `spec.md` (research questions, expected outputs), `plan.md` (pipeline stages, script plan)
+- **Optional**: `research.md` (method decisions)
+- **Context**: `/memory/constitution.md` (project standards)
 
-The tasks.md should be immediately executable - each task must be specific enough that an LLM can complete it without additional context.
+### 3. Extract Task Sources
 
-## Task Generation Rules
+From the loaded documents, identify:
 
-**CRITICAL**: Tasks MUST be organized by user story to enable independent implementation and testing.
+**From spec.md**:
+- Expected outputs (figures, tables, statistics) - these are completion criteria
+- Validation approach - these become QC tasks
+- Data sources - informs acquisition tasks
 
-**Tests are OPTIONAL**: Only generate test tasks if explicitly requested in the feature specification or if user requests TDD approach.
+**From plan.md**:
+- Pipeline stages and their scripts
+- Dependencies between stages
+- Environment/package requirements
+- Open questions (become Phase 0 tasks if unresolved)
 
-### Checklist Format (REQUIRED)
+### 4. Generate Task List
 
-Every task MUST strictly follow this format:
+Organize tasks by pipeline stage:
+
+**Phase 0: Research (if needed)**
+- Unresolved method choices from plan.md
+- Package selection decisions
+- Data access verification
+
+**Phase 1: Setup**
+- Environment creation (requirements.txt, environment.yml)
+- Directory structure
+- Configuration files
+
+**Phase 2: Data Acquisition**
+- Download/access scripts for each data source
+- QC: Verify raw data integrity
+
+**Phase 3: Preprocessing**
+- Cleaning, filtering, transformation scripts
+- QC: Verify processed data (ranges, coverage, formats)
+
+**Phase 4: Analysis**
+- Core calculation scripts
+- QC: Sanity checks on results
+
+**Phase 5: Visualization**
+- Figure generation scripts
+- Table generation scripts
+- QC: Verify outputs match spec requirements
+
+**Phase 6: Documentation & Reproducibility**
+- Update README with run instructions
+- Verify end-to-end reproducibility
+- Final validation against spec completion criteria
+
+### 5. Apply Task Format
+
+Every task MUST follow this format:
 
 ```text
-- [ ] [TaskID] [P?] [Story?] Description with file path
+- [ ] T### Description with specific file path or action
 ```
 
-**Format Components**:
-
-1. **Checkbox**: ALWAYS start with `- [ ]` (markdown checkbox)
-2. **Task ID**: Sequential number (T001, T002, T003...) in execution order
-3. **[P] marker**: Include ONLY if task is parallelizable (different files, no dependencies on incomplete tasks)
-4. **[Story] label**: REQUIRED for user story phase tasks only
-   - Format: [US1], [US2], [US3], etc. (maps to user stories from spec.md)
-   - Setup phase: NO story label
-   - Foundational phase: NO story label  
-   - User Story phases: MUST have story label
-   - Polish phase: NO story label
-5. **Description**: Clear action with exact file path
+**Format rules**:
+- Sequential task IDs (T001, T002, ...)
+- Specific file paths where applicable
+- Clear, actionable descriptions
+- QC tasks clearly labeled
 
 **Examples**:
+- ✅ `- [ ] T001 Create conda environment from environment.yml`
+- ✅ `- [ ] T005 Download velocity data in scripts/01_download.py`
+- ✅ `- [ ] T008 QC: Verify processed data covers expected date range`
+- ❌ `- [ ] Process the data` (no ID, no specifics)
+- ❌ `T003 Create figure` (missing checkbox, no file path)
 
-- ✅ CORRECT: `- [ ] T001 Create project structure per implementation plan`
-- ✅ CORRECT: `- [ ] T005 [P] Implement authentication middleware in src/middleware/auth.py`
-- ✅ CORRECT: `- [ ] T012 [P] [US1] Create User model in src/models/user.py`
-- ✅ CORRECT: `- [ ] T014 [US1] Implement UserService in src/services/user_service.py`
-- ❌ WRONG: `- [ ] Create User model` (missing ID and Story label)
-- ❌ WRONG: `T001 [US1] Create model` (missing checkbox)
-- ❌ WRONG: `- [ ] [US1] Create User model` (missing Task ID)
-- ❌ WRONG: `- [ ] T001 [US1] Create model` (missing file path)
+### 6. Add Checkpoints
 
-### Task Organization
+After each phase, include a checkpoint:
 
-1. **From User Stories (spec.md)** - PRIMARY ORGANIZATION:
-   - Each user story (P1, P2, P3...) gets its own phase
-   - Map all related components to their story:
-     - Models needed for that story
-     - Services needed for that story
-     - Endpoints/UI needed for that story
-     - If tests requested: Tests specific to that story
-   - Mark story dependencies (most stories should be independent)
+```markdown
+**Checkpoint**: [What should be true before proceeding]
+```
 
-2. **From Contracts**:
-   - Map each contract/endpoint → to the user story it serves
-   - If tests requested: Each contract → contract test task [P] before implementation in that story's phase
+Checkpoints verify:
+- Outputs exist and are valid
+- QC checks passed
+- Ready for next stage
 
-3. **From Data Model**:
-   - Map each entity to the user story(ies) that need it
-   - If entity serves multiple stories: Put in earliest story or Setup phase
-   - Relationships → service layer tasks in appropriate story phase
+### 7. Write Tasks File
 
-4. **From Setup/Infrastructure**:
-   - Shared infrastructure → Setup phase (Phase 1)
-   - Foundational/blocking tasks → Foundational phase (Phase 2)
-   - Story-specific setup → within that story's phase
+Write completed task list to `specs/[NNN-short-name]/tasks.md` using `templates/tasks-template.md` as the structure.
 
-### Phase Structure
+### 8. Report Completion
 
-- **Phase 1**: Setup (project initialization)
-- **Phase 2**: Foundational (blocking prerequisites - MUST complete before user stories)
-- **Phase 3+**: User Stories in priority order (P1, P2, P3...)
-  - Within each story: Tests (if requested) → Models → Services → Endpoints → Integration
-  - Each phase should be a complete, independently testable increment
-- **Final Phase**: Polish & Cross-Cutting Concerns
+Summarize:
+- Task file location
+- Total task count by phase
+- Any Phase 0 research tasks that need resolution first
+- Suggested starting point
+
+## Operating Principles
+
+- **Sequential by default**: Science pipelines are inherently ordered. Don't over-engineer parallelization unless data scale demands it.
+- **QC is standard practice**: Include validation tasks after each stage, scaled to the analysis scope.
+- **Reproducibility focus**: Every task should contribute to end-to-end reproducibility.
+- **Specificity**: Tasks should be completable without additional context.
+- **Right-sized**: Quick exploration gets fewer tasks; publication-ready analysis gets thorough QC.
