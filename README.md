@@ -2,7 +2,7 @@
 
 **A toolkit for reproducible earth science analysis workflows.**
 
-This is an adaptation of [GitHub's Spec Kit](https://github.com/github/spec-kit) for earth science research. The original is designed for software development—building apps, features, and products. This version is designed for building reproducible analyses—from research question to publication-ready figures.
+This is an adaptation of [GitHub's Spec Kit](https://github.com/github/spec-kit) for earth science research. The original is designed for software development-building apps, features, and products. This version is designed for building reproducible analyses—from research question to publication-ready figures.
 
 Most earth scientists aren't trained as software developers, but we write a lot of code. AI coding assistants are making this easier—and riskier. They're fast, but they make mistakes. Subtle ones. The kind that end up in your results if you're not careful.
 
