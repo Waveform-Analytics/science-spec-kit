@@ -57,13 +57,13 @@ From the constitution template:
 ### 1. Install
 
 ```bash
-uv tool install specify-cli --from git+https://github.com/Waveform-Analytics/science-spec-kit.git
+uv tool install science-specify-cli --from git+https://github.com/Waveform-Analytics/science-spec-kit.git
 ```
 
 ### 2. Initialize a project
 
 ```bash
-specify init my-analysis --ai claude
+science-specify init my-analysis --ai claude
 cd my-analysis
 ```
 
@@ -73,9 +73,11 @@ cd my-analysis
 /speckit.constitution
 ```
 
-Define your project's data sources, technical environment, coordinate systems, and standards.
+Define your project's data sources, technical environment, coordinate systems, and standards. [C: I think you can also optionally add info when you enter the command, but could be wrong]
 
 ### 4. Create an analysis specification
+
+For example: [C: for these maybe indicate they are examples? I guess that's probably clear but still]
 
 ```bash
 /speckit.specify I want to analyze seasonal velocity variations for glaciers in the study region, comparing winter vs summer patterns and identifying any acceleration trends over the 2015-2023 period.
