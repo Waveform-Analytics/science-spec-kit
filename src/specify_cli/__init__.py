@@ -233,12 +233,10 @@ SCRIPT_TYPE_CHOICES = {"sh": "POSIX Shell (bash/zsh)", "ps": "PowerShell"}
 CLAUDE_LOCAL_PATH = Path.home() / ".claude" / "local" / "claude"
 
 BANNER = """
-███████╗██████╗ ███████╗ ██████╗██╗███████╗██╗   ██╗
-██╔════╝██╔══██╗██╔════╝██╔════╝██║██╔════╝╚██╗ ██╔╝
-███████╗██████╔╝█████╗  ██║     ██║█████╗   ╚████╔╝ 
-╚════██║██╔═══╝ ██╔══╝  ██║     ██║██╔══╝    ╚██╔╝  
-███████║██║     ███████╗╚██████╗██║██║        ██║   
-╚══════╝╚═╝     ╚══════╝ ╚═════╝╚═╝╚═╝        ╚═╝   
+▄▖  ▘          ▄▖      ▘▐▘
+▚ ▛▘▌█▌▛▌▛▘█▌  ▚ ▛▌█▌▛▘▌▜▘▌▌
+▄▌▙▖▌▙▖▌▌▙▖▙▖  ▄▌▙▌▙▖▙▖▌▐ ▙▌
+                 ▌        ▄▌
 """
 
 TAGLINE = "Science Spec Kit - Reproducible Earth Science Workflows"
@@ -442,14 +440,21 @@ app = typer.Typer(
 )
 
 def show_banner():
-    """Display the ASCII art banner."""
+    """Display the ASCII art banner with horizontal rainbow gradient."""
     banner_lines = BANNER.strip().split('\n')
-    colors = ["bright_blue", "blue", "cyan", "bright_cyan", "white", "bright_white"]
+    rainbow = ["magenta", "bright_red", "orange1", "yellow", "green", "cyan", "blue", "purple"]
+
+    # Find the max width to calculate color positions
+    max_width = max(len(line) for line in banner_lines)
 
     styled_banner = Text()
-    for i, line in enumerate(banner_lines):
-        color = colors[i % len(colors)]
-        styled_banner.append(line + "\n", style=color)
+    for line in banner_lines:
+        for i, char in enumerate(line):
+            # Map horizontal position to rainbow color
+            color_idx = int(i / max_width * len(rainbow))
+            color_idx = min(color_idx, len(rainbow) - 1)
+            styled_banner.append(char, style=rainbow[color_idx])
+        styled_banner.append("\n")
 
     console.print(Align.center(styled_banner))
     console.print(Align.center(Text(TAGLINE, style="italic bright_yellow")))
