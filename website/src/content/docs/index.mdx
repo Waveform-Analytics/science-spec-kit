@@ -1,0 +1,43 @@
+---
+title: Science Spec-Kit
+description: A toolkit for reproducible earth science analysis workflows
+---
+
+Most earth scientists aren't trained as software developers, but we write a lot of code. AI coding assistants are making this easier—and riskier. They're fast, but they make mistakes. Subtle ones. The kind that end up in your results if you're not careful.
+
+"Vibe coding" (prompting and hoping) is fine for side projects, but scientific analysis needs to be correct, documented, and reproducible. That's where this toolkit comes in.
+
+## What is this?
+
+Science Spec-Kit gives you a structured way to build analysis code, whether you're writing it yourself, working with an AI assistant, or both. Before you write any code, you write down:
+
+- What question you're trying to answer
+- What data you're using
+- What outputs you expect
+- How you'll know the results are correct
+
+Then you build the code step by step, with checkpoints along the way.
+
+Everything is written in plain English. Your collaborators and reviewers can understand your analysis plan without reading Python. Non-programmers can review your approach, catch logical errors, and understand exactly what the code is supposed to do.
+
+## Why bother?
+
+Mistakes happen in science. There's no way around that. But the goal is to:
+
+- **Catch mistakes earlier** by thinking through the approach before coding
+- **Make mistakes easier to find** by logging every decision and change
+- **Make reviews more thorough** because reviewers can understand intentions, not just code
+
+This isn't only for AI-assisted coding. It's useful for anyone who wants to organize their thoughts before starting. But if you *are* using an AI assistant and want quality results, you need structure to keep things on track.
+
+## Core Principles
+
+These principles guide how the toolkit is designed and how you should think about your analysis:
+
+- **Reproducibility**: Analysis runs from raw data to outputs without manual intervention. Someone else (or future you) should be able to run your code and get the same results.
+- **Data Integrity**: Raw data is immutable—you never modify the original files. Transformations produce new files, leaving the originals untouched.
+- **Provenance**: Every output traces back to code, data, and parameter choices. You can always answer "where did this number come from?"
+
+## Next steps
+
+Ready to try it? Head to the [Quickstart](/science-spec-kit/quickstart/) to set up your first project.
