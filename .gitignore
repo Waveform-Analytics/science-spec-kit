@@ -44,3 +44,8 @@ env/
 .genreleases/
 *.zip
 sdd-*/
+
+# Astro/Website
+website/node_modules/
+website/dist/
+website/.astro/

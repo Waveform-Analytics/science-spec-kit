@@ -73,11 +73,11 @@ cd my-analysis
 /speckit.constitution
 ```
 
-Define your project's data sources, technical environment, coordinate systems, and standards. [C: I think you can also optionally add info when you enter the command, but could be wrong]
+Define your project's data sources, technical environment, coordinate systems, and standards. You can provide context inline (e.g., `/speckit.constitution My project analyzes glacier velocities using ITS_LIVE data...`) or run the command by itself and answer prompts interactively.
 
 ### 4. Create an analysis specification
 
-For example: [C: for these maybe indicate they are examples? I guess that's probably clear but still]
+Describe your research goal in plain language. Here's an example:
 
 ```bash
 /speckit.specify I want to analyze seasonal velocity variations for glaciers in the study region, comparing winter vs summer patterns and identifying any acceleration trends over the 2015-2023 period.
