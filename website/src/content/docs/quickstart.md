@@ -29,11 +29,17 @@ This downloads and installs the Science Spec-Kit command-line tool. The `uv tool
 Navigate to where you want your project to live, then run:
 
 ```bash
-science-specify init my-analysis --ai claude
+science-specify init my-analysis
 cd my-analysis
 ```
 
-The first command creates a new folder called `my-analysis` with the starter files you need. The `--ai claude` flag configures it for Claude Code (change this if you're using a different AI agent). The second command moves you into that folder.
+The first command creates a new folder called `my-analysis` with the starter files you need. It will prompt you to select which AI coding agent you're using. The second command moves you into that folder.
+
+If you want to initialize in your current directory instead of creating a new folder, use `.` as the project name:
+
+```bash
+science-specify init .
+```
 
 ## Step 3: Set up your research constitution
 
