@@ -53,6 +53,7 @@ From the constitution template:
 - **Provenance**: Every output traces back to code, data, and parameter choices
 
 ## Quick Start
+Before you start, you'll need [uv](https://docs.astral.sh/uv/getting-started/installation/) (Python package manager) and a coding agent like [Claude Code](https://docs.anthropic.com/en/docs/claude-code). See [Prerequisites](#prerequisites) for the full list.
 
 ### 1. Install
 
@@ -63,9 +64,11 @@ uv tool install science-specify-cli --from git+https://github.com/Waveform-Analy
 ### 2. Initialize a project
 
 ```bash
-science-specify init my-analysis --ai claude
+science-specify init my-analysis
 cd my-analysis
 ```
+
+To add spec-kit to an existing project, run `science-specify init .` from the project root.
 
 ### 3. Set up your research constitution
 
